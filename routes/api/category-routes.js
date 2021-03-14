@@ -7,7 +7,9 @@ router.get('/', async (req, res) => {
   // find all categories
   // be sure to include its associated Products
   try {
-    const categoryAll = await Category.findAll();
+    const categoryAll = await Category.findAll({
+      include: [{ model: Product }],
+    });
     res.status(200).json(categoryAll);
   } catch (err) {
     res.status(500).json(err);
@@ -38,8 +40,22 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
   // update a category by its `id` value
+  try {
+    const updateCategory = await Category.update(req.body, {
+      category_name: req.body.category_name,
+      where: {
+        id: req.params.id,
+      }
+    });
+    res.status(200).json(updateCategory);
+    if (!updateCategory) {
+      res.status(404).json({ message: `Wrong ID` })
+    }
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
 router.delete('/:id', (req, res) => {
